@@ -41,43 +41,21 @@ public class ServerListenerThread extends Thread {
                 // Log message indicating that a connection is accepted
                 LOGGER.info("* Connection accepted :" + socket.getInetAddress());
 
-                // Get input and output streams for the socket
-                InputStream inputStream = socket.getInputStream();
-                OutputStream outputStream = socket.getOutputStream();
+                HttpConnectionWorkerThread workerThread = new HttpConnectionWorkerThread(socket);
+                workerThread.start();
 
-                // HTML page to be sent to the browser
-                String html = "<!DOCTYPE html><html><head><title>Simple Java Http Server</title></head><body><h1>Served Using Our  Http Server</h1></body></html>";
 
-                // Carriage return and line feed characters
-                final String CRFL = "\r\n"; // 13 , 10
-
-                // HTTP response to be sent back to the client
-                String response =
-                        "HTTP/1.1 200 OK" + CRFL + // Status Line : HTTP VERSION RESPONSE_CODE RESPONSE_MESSAGE :
-                                "Content-Length :" + html.getBytes().length + CRFL + // Header
-                                CRFL +
-                                html +
-                                CRFL + CRFL;
-
-                // Write the HTTP response to the output stream
-                outputStream.write(response.getBytes());
-
-                // Close input and output streams and the socket
-                inputStream.close();
-                outputStream.close();
-                socket.close();
-
-                // Pause for 5 seconds to simulate processing time (for testing purposes)
-                try {
-                    sleep(5000); // to test that its make other clients waiting until this finish , so we create another thread to handle the  problem and requests
-                } catch (InterruptedException e) {
-                    // Throw a RuntimeException if sleep is interrupted
-                    throw new RuntimeException(e);
-                }
             }
         } catch (IOException e) {
-            // Print any IOExceptions that occur during server operation
-            e.printStackTrace();
+            LOGGER.error("Problem with setting socket",e);
+        }finally {
+            if (serverSocket!= null){
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                }
+            }
+
         }
     }
 }
