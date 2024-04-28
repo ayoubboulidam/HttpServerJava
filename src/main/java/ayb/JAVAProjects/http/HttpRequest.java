@@ -7,6 +7,7 @@ public class HttpRequest extends HttpMessage{
     private String originalHttpVersion; // literal from the request
     private HttpVersion bestCompatibleHttpVersion;
 
+
     HttpRequest() {
     }
 
