@@ -1,4 +1,8 @@
 package ayb.JAVAProjects.httpServer.core;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -7,8 +11,8 @@ import java.nio.file.Paths;
 
 public class HttpConnectionWorkerThread extends Thread {
     private final static String WEB_ROOT = "src/main/resources/Webroot";
-
     private final Socket socket;
+    private final static Logger LOGGER = LoggerFactory.getLogger(HttpConnectionWorkerThread.class);
 
     public HttpConnectionWorkerThread(Socket socket) {
         this.socket = socket;
@@ -19,27 +23,29 @@ public class HttpConnectionWorkerThread extends Thread {
         try (
                 InputStream inputStream = socket.getInputStream();
                 OutputStream outputStream = socket.getOutputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))
         ) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line = reader.readLine();
             if (line != null) {
                 String[] request = line.split("\\s+");
                 String method = request[0];
                 String path = request[1];
+                LOGGER.info("Connection accepted : {}", socket.getRemoteSocketAddress());
                 if (method.equals("GET")) {
                     serveFile(outputStream, path);
                 } else {
                     // Handle unsupported methods
                     sendResponse(outputStream, "405 Method Not Allowed", "text/plain", "Method Not Allowed");
                 }
+                LOGGER.info("Connection Processing Finished");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Problem with communication ", e);
         } finally {
             try {
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Error closing socket ", e);
             }
         }
     }
