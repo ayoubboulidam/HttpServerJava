@@ -29,10 +29,15 @@ public class HttpConnectionWorkerThread extends Thread {
         InputStream inputStream = null;
         OutputStream outputStream = null;
 
+
+
         try {
             // Get input and output streams for the socket
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
+
+
+
 
             // HTML page to be sent to the browser
             String html = "<!DOCTYPE html><html><head><title>Simple Java Http Server</title></head><body><h1>Served Using Our  Http Server</h1></body></html>";
